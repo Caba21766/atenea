@@ -1,26 +1,27 @@
-# Secrets / entornos
+# ==== Secrets / env ====
 .env
 *.env
 env/
 .venv/
 venv/
 
-# Bases y logs locales
+# ==== DB/Logs locales ====
 *.sqlite3
 db.sqlite3
 *.log
 
-# Django / Python
+# ==== Python/Django ====
 __pycache__/
 *.py[cod]
 *.egg-info/
 
-# Build / generados
+# ==== Builds / generados ====
 staticfiles/
 media/
 
-# Node
+# ==== Node ====
 node_modules/
+tw-animated-only/node_modules/
 
-# IDE
+# ==== IDE ====
 .vscode/
