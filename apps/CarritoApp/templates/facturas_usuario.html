@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block navegacion %}
+{% include 'navegacion.html' %}
+{% endblock %}
+
+{% block contenido %}
+    <h1>Mis Facturas de Compras</h1>
+    {% if facturas %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>N° Factura</th>
+                        <th>Fecha</th>
+                        <th>Método de Pago</th>
+                        <th>Factura</th>
+                        <th>Total</th>
+                        <th>Imagen</th>
+                        <th>Entregado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for factura in facturas %}
+                    <tr>
+                        <td>{{ factura.numero_factura }}</td>
+                        <td>{{ factura.fecha }}</td>
+                        <td>
+                            {% if factura.metodo_pago %}
+                                {{ factura.metodo_pago.tarjeta_nombre }}
+                                {% if factura.tarjeta_numero %}(****{{ factura.tarjeta_numero|slice:"-4:" }}){% endif %}
+                            {% else %}
+                                {{ factura.metodo_pago_manual|default:"Efectivo" }}
+                            {% endif %}
+                            </td>
+                        <td>
+                            {% with m1=factura.metodo_pago.tarjeta_nombre|default:"" %}
+                            {% with m2=factura.metodo_pago_manual|default:"" %}
+                                {% if m1|lower == "cuenta corriente" or m2|lower == "cuenta corriente" %}
+                                {% if factura.estado_credito_real == "Pagado" %}
+                                    <span class="text-success fw-bold">Pagado</span>
+                                {% else %}
+                                    <span class="text-danger fw-bold">Pendiente</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="text-success fw-bold">Pagado</span>
+                                {% endif %}
+                            {% endwith %}
+                            {% endwith %}  
+                        </td>
+                        <td>${{ factura.total|floatformat:2 }}</td>
+                        <td>
+                            {% if factura.imagen_factura %}
+                                <img src="{{ factura.imagen_factura.url }}"
+                                    alt="Imagen de factura"
+                                    class="img-thumbnail"
+                                    style="max-width:100px; max-height:70px; object-fit:cover;">
+                            {% else %}
+                                <span class="text-muted">Sin imagen</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if factura.estado_entrega == "pendiente" %}
+                                ⏳ Pendiente
+                            {% elif factura.estado_entrega == "aceptado" %}
+                                ✅ Entregado
+                            {% elif factura.estado_entrega == "rechazado" %}
+                                ❌ Rechazado
+                            {% else %}
+                                <span class="text-muted">Sin estado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'CarritoApp:vista_resumen_factura' factura.id %}" class="btn btn-success btn-sm"><i class="bi bi-eye"></i> Ver </a>
+                            
+                            <a href="{% url 'CarritoApp:levantar_imagen_usuario' factura.id %}"
+                                class="btn btn-secondary btn-sm">
+                                <i class="bi bi-upload"></i> S/Tiket</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No tienes facturas disponibles.</p>
+    {% endif %}
+
+{% endblock %}
+
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}

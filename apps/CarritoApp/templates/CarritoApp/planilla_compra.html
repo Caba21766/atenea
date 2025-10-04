@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block navegacion %}
+{% include 'navegacion.html' %}
+{% endblock %}
+
+{% block contenido %}
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<!-- Filtro y Listado : de Producto comprados -->
+{% if not modificar %}
+<div class="container mt-4 mb-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h2 class="text-primary fw-bold mb-4">Filtrar Compras</h2>
+            <form method="get" class="row g-3">
+                <!-- Filtro: Producto -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="producto" class="form-label fw-semibold">Producto</label>
+                    <input 
+                        type="text" 
+                        name="producto" 
+                        id="producto" 
+                        class="form-control" 
+                        placeholder="Ingrese producto" 
+                        value="{{ request.GET.producto }}">
+                </div>
+
+                <!-- Filtro: Fecha de Compra -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="fecha_compra" class="form-label fw-semibold">Fecha de Compra</label>
+                    <input 
+                        type="date" 
+                        name="fecha_compra" 
+                        id="fecha_compra" 
+                        class="form-control" 
+                        value="{{ request.GET.fecha_compra }}">
+                </div>
+
+                <!-- Filtro: Factura -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="factura" class="form-label fw-semibold">Factura</label>
+                    <input 
+                        type="text" 
+                        name="factura" 
+                        id="factura" 
+                        class="form-control" 
+                        placeholder="Ingrese número de factura" 
+                        value="{{ request.GET.factura }}">
+                </div>
+
+                <!-- Filtro: Proveedor -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="proveedor" class="form-label fw-semibold">Proveedor</label>
+                    <input 
+                        type="text" 
+                        name="proveedor" 
+                        id="proveedor" 
+                        class="form-control" 
+                        placeholder="Ingrese proveedor" 
+                        value="{{ request.GET.proveedor }}">
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-filter me-2"></i></button>
+                    <a href="?producto=&fecha_compra=&factura=&proveedor=" class="btn btn-outline-danger px-4">
+                        <i class="bi bi-x-circle me-2"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %} <!-- Cierre del bloque if -->
+
+
+<!-- Listado de Compras -->
+<hr class="my-4">
+<h2 class="text-success mb-4">Listado de Compras</h2>
+
+{% if compras %}
+    <div class="table-responsive shadow-sm rounded bg-light p-3">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nº producto</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Factura</th>
+                    <th>Fecha de Compra</th>
+                    <th>Proveedor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {# agrupamos por fecha_compra #}
+                {% regroup compras by fecha_compra as compras_por_fecha %}
+
+                {% for grupo in compras_por_fecha %}
+                    {# Cabecera de fecha + línea separadora #}
+                    <tr>
+                    <td colspan="8" class="bg-white">
+                        <div class="d-flex align-items-center py-1">
+                        <span class="fw-bold text-secondary">
+                            <i class="fas fa-calendar-alt me-2"></i>{{ grupo.grouper|date:"d/m/Y" }}
+                        </span>
+                        <div class="flex-grow-1 ms-3" style="border-top:2px solid #dee2e6;"></div>
+                        </div>
+                    </td>
+                    </tr>
+
+                    {# filas de esa fecha #}
+                    {% for compra in grupo.list %}
+                    <tr>
+                        <td>{{ compra.producto.numero_producto }}</td>
+                        <td>{{ compra.producto.nombre_producto }}</td>
+                        <td>{{ compra.cantidad|default:"0" }}</td>
+                        <td>${{ compra.precio_compra|default:"0.00"|floatformat:2 }}</td>
+                        <td>{{ compra.factura_compra }}</td>
+                        <td>{{ compra.fecha_compra|date:"d/m/Y" }}</td>
+                        <td>{{ compra.provedor.nombre }}</td>
+                        <td class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'CarritoApp:modificar_compra' compra.id %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <form action="{% url 'CarritoApp:eliminar_compra' compra.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('¿Estás seguro de eliminar esta compra?')">
+                            <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% empty %}
+                    <tr>
+                    <td colspan="8" class="text-center text-muted">No se encontraron compras.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+{% else %}
+    <p class="text-center text-muted">No se encontraron compras con los filtros seleccionados.</p>
+{% endif %}
+
+
+{% endblock %}

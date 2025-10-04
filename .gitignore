@@ -1,0 +1,26 @@
+# Secrets / entornos
+.env
+*.env
+env/
+.venv/
+venv/
+
+# Bases y logs locales
+*.sqlite3
+db.sqlite3
+*.log
+
+# Django / Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Build / generados
+staticfiles/
+media/
+
+# Node
+node_modules/
+
+# IDE
+.vscode/

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block contenido %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <div class="container my-5 p-4 bg-white shadow rounded">
+
+    <!-- LOGO y encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <img src="{% static 'img/atenealogo.jpeg' %}"
+                 alt="Logo Atenea"
+                 style="width:90px; height:90px; border-radius:50%; object-fit:cover; box-shadow:0 0 6px rgba(0,0,0,0.2);">
+        </div>
+        <div class="text-end">
+            <h1 class="mb-0" style="color:#8e44ad;">Factura Nº {{ factura.numero_factura }}</h1>
+            <p class="text-muted mb-0" style="font-size:0.9rem;">Atenea Indumentaria</p>
+            <p class="text-muted" style="font-size:0.85rem;">www.ateneaquimili.com.ar</p>
+        </div>
+    </div>
+        
+        <div class="row mb-3" style="line-height: 0.5;">
+        <!-- Columna 1 -->
+        <div class="col-md-6">
+            <p style="font-weight: bold; color: #0d6efd;"><strong>Fecha:</strong> {{ factura.fecha }}</p>
+            <p><strong>Cliente:</strong> {{ factura.nombre_cliente }} {{ factura.apellido_cliente }}
+            </p>
+            <p><strong>Cuil Nº:</strong> {{ factura.cuil  }}</p>
+        </div>
+        <!-- Columna 2 -->
+        <div class="col-md-6">
+            <p style="font-weight: bold; color: #220e13;">
+                <strong>Método de Pago:</strong>
+                {% if factura.metodo_pago %}
+                    {{ factura.metodo_pago.tarjeta_nombre }}
+                {% elif factura.metodo_pago_manual %}
+                    {{ factura.metodo_pago_manual }}
+                {% else %}
+                    Sin especificar
+                {% endif %}
+            </p>
+
+            <p style="font-weight: bold; color: #3e63b4;"><strong>Nº Tarjeta:</strong> {{ factura.tarjeta_numero }}</p>
+            <p style="font-weight: bold; color: #4cbe78;"><strong>Nº Ticket:</strong> {{ factura.numero_tiket }}</p>
+            
+            <p style="font-weight: bold; color: #aa1e3c;"><strong>Vendedor:</strong> {{ factura.vendedor }}</p>
+
+        </div>
+        </div>
+
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>N° Producto</th>
+                        <th>Nombre Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in detalle_productos %}
+                    <tr>
+                        <td>{{ producto.numero_producto }}</td>
+                        <td>{{ producto.nombre_producto }}</td>
+                        <td>{{ producto.cantidad_vendida }}</td>
+                        <td>${{ producto.precio_unitario }}</td>
+                        <td>${{ producto.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mb-3" style="line-height: 0.5;">
+            <p class="text-end fw-bold fs-6">Total Producto: <span class="text-success">${{ factura.total }}</span></p>
+            <p class="text-end fw-bold fs-6">Desc %: <span>${{ factura.descuento }}</span></p>
+            <p class="text-end fw-bold fs-6">Importe c/Descuento: <span class="text-primary">${{ factura.total_descuento }}</span></p>
+            <hr>
+            <p class="text-end fw-bold fs-6">Interés %: <span>{{ factura.interes }}</span></p>
+            <p class="text-end fw-bold fs-6">Cuota Nº: <span>{{ factura.cuotas }}</span></p>
+            <p class="text-end fw-bold fs-6">Cuota Neta: <span class="text-primary">${{ factura.cuota_mensual }}</span></p>
+            <p class="text-end fw-bold fs-3">Total Neto a Pagar: <span class="text-danger">${{ factura.total_con_interes }}</span></p>
+        </div>  
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <!-- Descargar PDF -->
+            <a href="{{ pdf_url }}" download="factura_{{ factura.id }}.pdf" class="btn btn-dark">
+                <i class="bi bi-download"></i> Descargar PDF
+            </a>
+        </div>
+        
+        <hr class="mt-5">
+</div>
+{% endblock %}

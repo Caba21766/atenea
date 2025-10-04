@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block navegacion %}
+{% include 'navegacion.html' %}
+{% endblock %}
+
+{% block contenido %}
+<div class="container my-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <h1 class="text-center text-primary mb-4">Agregar Compra</h1>
+
+    <div class="card shadow-sm mb-4" style="background-color:#f3f0f0;">
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          {# ---- Errores del formulario (claros) ---- #}
+          {% if form.errors or form.non_field_errors %}
+            <div class="alert alert-danger">
+              <ul class="mb-0">
+                {% for field in form %}
+                  {% if field.errors %}
+                    <li><strong>{{ field.label }}:</strong> {{ field.errors|join:", " }}</li>
+                  {% endif %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                  <li>{{ form.non_field_errors|join:", " }}</li>
+                {% endif %}
+              </ul>
+            </div>
+          {% endif %}
+
+          {# ID oculto (cuando venís desde el botón Compra) #}
+          <input type="hidden" id="producto_id" name="producto_id"
+                 value="{% if producto %}{{ producto.id }}{% endif %}">
+
+          <div class="row g-3">
+            {# Nº de producto #}
+            <div class="col-md-6">
+              <label for="id_numero_producto" class="form-label">Nº producto</label>
+              <input type="text"
+                     id="id_numero_producto"
+                     name="numero_producto"
+                     class="form-control form-control-sm"
+                     value="{% if producto %}{{ producto.numero_producto }}{% else %}{{ request.POST.numero_producto }}{% endif %}"
+                     {% if producto %}readonly{% endif %}>
+            </div>
+
+            {# Nombre del producto (visible) + sugerencias #}
+            <div class="col-md-6 position-relative">
+              <label for="id_producto_nombre" class="form-label">Producto</label>
+              <input type="text"
+                     id="id_producto_nombre"
+                     name="producto_nombre"
+                     class="form-control form-control-sm"
+                     value="{% if producto %}{{ producto.nombre_producto }}{% else %}{{ request.POST.producto_nombre }}{% endif %}"
+                     {% if producto %}readonly{% endif %}>
+              <ul id="sugerencias" class="list-group"
+                  style="position:absolute; top:100%; left:0; right:0; z-index:1000; display:none; max-height:220px; overflow:auto;"></ul>
+            </div>
+
+            <div class="col-md-6">
+              <label for="id_cantidad" class="form-label">Cantidad</label>
+              {{ form.cantidad }}
+              {% if form.cantidad.errors %}<div class="text-danger small">{{ form.cantidad.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label for="id_stock" class="form-label text-primary fw-bold">Stock</label>
+              <input type="text"
+                     id="id_stock"
+                     name="stock"
+                     class="form-control form-control-sm text-center"
+                     value="{{ request.POST.stock }}"
+                     readonly
+                     style="font-size:0.8rem; max-width:120px;">
+            </div>
+
+            <div class="col-md-6">
+              <label for="id_precio_compra" class="form-label">Precio Compra</label>
+              {{ form.precio_compra }}
+              {% if form.precio_compra.errors %}<div class="text-danger small">{{ form.precio_compra.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label for="id_factura_compra" class="form-label">Factura Compra</label>
+              {{ form.factura_compra }}
+              {% if form.factura_compra.errors %}<div class="text-danger small">{{ form.factura_compra.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label for="id_fecha_compra" class="form-label">Fecha de Compra</label>
+              {% now "Y-m-d" as today %}
+              <input type="date"
+                     name="fecha_compra"
+                     id="id_fecha_compra"
+                     class="form-control form-control-sm"
+                     value="{{ request.POST.fecha_compra|default:today }}">
+            </div>
+
+            <div class="col-md-6">
+              <label for="{{ form.provedor.id_for_label }}" class="form-label">Proveedor</label>
+              {{ form.provedor }}
+              {% if form.provedor.errors %}<div class="text-danger small">{{ form.provedor.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="mt-4 text-end">
+            <button type="submit" class="btn btn-primary btn-sm">Guardar Compra</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+{# ---------- JS: autocompletar, sincronizar y stock ---------- #}
+<script>
+  // Al cargar: si viene producto preseleccionado, traer stock
+  document.addEventListener('DOMContentLoaded', () => {
+    const num = document.getElementById('id_numero_producto').value;
+    if (num) {
+      fetch(`/CarritoApp/api/obtener-stock/?numero_producto=${encodeURIComponent(num)}`)
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(d => document.getElementById('id_stock').value = d.stock || '0')
+        .catch(() => document.getElementById('id_stock').value = '0');
+    }
+  });
+
+  // Autocompletar por nombre
+  const inputNombre = document.getElementById('id_producto_nombre');
+  const listaSugerencias = document.getElementById('sugerencias');
+
+  inputNombre.addEventListener('input', function () {
+    const q = this.value.trim();
+    if (!q) { listaSugerencias.style.display='none'; listaSugerencias.innerHTML=''; return; }
+
+    fetch(`/CarritoApp/buscar_productos/?query=${encodeURIComponent(q)}`)
+      .then(r => r.json())
+      .then(data => {
+        listaSugerencias.innerHTML = '';
+        listaSugerencias.style.display = 'block';
+        data.productos.forEach(p => {
+          const li = document.createElement('li');
+          li.textContent = `${p.nombre_producto} (${p.numero_producto})`;
+          li.className = 'list-group-item';
+          li.style.cursor = 'pointer';
+          li.addEventListener('click', () => {
+            inputNombre.value = p.nombre_producto;
+            document.getElementById('id_numero_producto').value = p.numero_producto;
+            document.getElementById('producto_id').value = ''; // resolvemos por número
+            listaSugerencias.style.display = 'none';
+            document.getElementById('id_numero_producto').dispatchEvent(new Event('input')); // actualiza stock + nombre (por si acaso)
+          });
+          listaSugerencias.appendChild(li);
+        });
+      })
+      .catch(console.error);
+  });
+
+  // Cerrar sugerencias al click fuera
+  document.addEventListener('click', (e) => {
+    if (!listaSugerencias.contains(e.target) && e.target !== inputNombre) {
+      listaSugerencias.style.display = 'none';
+    }
+  });
+
+  // Completar nombre desde número + actualizar stock
+  document.getElementById('id_numero_producto').addEventListener('input', function() {
+    const num = this.value.trim();
+    if (!num) { inputNombre.value=''; return; }
+
+    fetch(`/CarritoApp/api/obtener-nombre-producto/?numero_producto=${encodeURIComponent(num)}`)
+      .then(r => r.json())
+      .then(d => { inputNombre.value = d.nombre_producto || ''; })
+      .catch(console.error);
+
+    fetch(`/CarritoApp/api/obtener-stock/?numero_producto=${encodeURIComponent(num)}`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => document.getElementById('id_stock').value = d.stock || '0')
+      .catch(() => document.getElementById('id_stock').value = '0');
+  });
+
+  // Completar número desde nombre (cuando el usuario tipea manualmente) + stock
+  inputNombre.addEventListener('change', function() {
+    const nombre = this.value.trim();
+    if (!nombre) { document.getElementById('id_numero_producto').value=''; return; }
+
+    fetch(`/CarritoApp/api/obtener-numero-producto/?nombre_producto=${encodeURIComponent(nombre)}`)
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('id_numero_producto').value = d.numero_producto || '';
+        const num = d.numero_producto;
+        if (num) {
+          fetch(`/CarritoApp/api/obtener-stock/?numero_producto=${encodeURIComponent(num)}`)
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(d2 => document.getElementById('id_stock').value = d2.stock || '0')
+            .catch(() => document.getElementById('id_stock').value = '0');
+        }
+      })
+      .catch(console.error);
+  });
+
+  // Si viene por ?producto_id=, bloquear edición y ocultar sugerencias
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('producto_id').value) {
+      document.getElementById('id_producto_nombre').readOnly = true;
+      document.getElementById('id_numero_producto').readOnly = true;
+      document.getElementById('sugerencias').style.display = 'none';
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block navegacion %}
+{% include 'navegacion.html' %}
+{% endblock %}
+
+{% block contenido %}
+<!-- FONDO ROSA: tailwind (tw-*) + fallback inline por si el CSS no cargó -->
+<div class="container-fluid py-4 min-vh-100 tw-bg-gradient-to-b tw-from-atenea-bg1 tw-to-atenea-bg2"
+     style="background:linear-gradient(180deg,#fde7f3,#fbd3ea)">
+  <div class="row mx-auto tw-max-w-[1500px]">
+
+    <!-- Artículo principal -->
+    <article class="col-lg-8 col-md-7 col-sm-12 mb-4">
+      <div class="tw-bg-white tw-rounded-2xl tw-shadow-soft tw-border tw-border-fuchsia-200 tw-p-5 animate-fade-down animate-once animate-duration-700">
+        <h1 class="tw-text-[34px] tw-leading-tight tw-mb-2" style="font-family:'Bookman Old Style',ui-serif,Georgia,'Times New Roman',serif;color:#2f2f3d">
+          Nuestra Historia
+        </h1>
+
+        <h2 class="tw-text-slate-900 tw-font-semibold tw-mb-3 animate-fade-right animate-once animate-delay-200">
+          Atenea
+        </h2>
+
+        <div class="d-flex align-items-start tw-gap-4 animate-fade-left animate-once animate-delay-300">
+
+          <img src="{% static 'img/Foto7.jpeg' %}" alt="Imagen 1"
+              class="img-fluid tw-rounded-xl tw-shadow-soft animate-zoom-in animate-once animate-duration-700"
+              style="width:120px;height:150px;object-fit:cover;border:3px solid #0BA2CF;">
+
+             <p class="mb-0 tw-text-slate-700">
+                Atenea 👋 Hola … ¿Cómo estás? Les voy a contar un poquito nuestra Historia.<br><br>
+
+                Atenea es un proyecto que hace tiempo daba vueltas en mi mente pero no me animaba a realizarlo 🤔. Fue gracias al apoyo y acompañamiento de mi familia que se pudo concretar y, hace aproximadamente 6 meses dimos nuestro primer paso.<br><br>
+
+                Hoy avanzamos pasito a pasito 👣 gracias al apoyo y confianza de nuestras clientas que cada vez son más 🥰.<br><br>
+
+                Por eso te invito a sumarte a vos también y a nuestra tienda on👗 conocer toda la Indumentaria que tenemos para ofrecerte 💕✨<br><br>
+
+                <strong>PD:</strong> ¿Por qué hablo en plural? 🤔<br>
+                Porque ☀️ Atenea 🌸 es una familia… <strong>MI Familia</strong> 👩‍👩‍👧‍👦💖<br><br>
+
+                Te esperamos 😘…
+              </p>
+        </div>
+
+        <hr class="my-4" style="border:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,.08),transparent)">
+
+        <div class="animate-fade-left animate-once animate-delay-500">
+          <p class="mb-0 tw-text-slate-700">
+            Aquí seguimos, pasitos cortos pero FIRMES.. 💪<br><br>
+          </p>
+        </div>
+        <img src="{% static 'img/ateneabanner.jpeg' %}" alt="Imagen 1"
+     class="img-fluid tw-rounded-xl tw-shadow-soft animate-zoom-in animate-once animate-duration-700"
+     style="max-width:100%; height:auto;">
+
+      </div>
+    </article>
+
+    <!-- Aside -->
+    <aside class="col-lg-4 col-md-5 col-sm-12">
+      <div class="tw-bg-white tw-rounded-2xl tw-shadow-soft tw-border tw-border-fuchsia-200 tw-p-4 animate-fade-up animate-once animate-duration-700">
+        <h2 class="tw-text-slate-900 tw-font-semibold tw-mb-3">Estamos en:</h2>
+
+        <img src="{% static 'img/quimili.png' %}" alt="Santiango del Estero"
+             class="img-fluid tw-rounded-xl tw-mb-3 animate-zoom-in animate-once animate-delay-200"
+             style="width:30%;height:auto;object-fit:cover;">
+
+        <ul class="list-unstyled tw-text-slate-700 tw-mb-3">
+          <li class="tw-mb-2"><strong>Cuil:</strong> 27-35742265-0</li>
+          <li class="tw-mb-2"><strong>Dom:</strong> Pasaje Pedro Aisa S/N</li>
+          <li class="tw-mb-2"><strong>Cel:</strong> +54 9 3843-402011</li>
+        </ul>
+
+        <div class="tw-mt-3 animate-fade animate-once animate-delay-300">
+          <div class="ratio ratio-4x3 tw-rounded-xl tw-overflow-hidden tw-shadow-soft">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d4252.233999592414!2d-60.43320192051481!3d-26.336589970411737!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sar!4v1735392038828!5m2!1ses!2sar"
+                    style="border:0" allowfullscreen loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}

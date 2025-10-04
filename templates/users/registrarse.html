@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block navegacion %}
+{% include 'navegacion.html' %}
+{% endblock %}
+
+{% block contenido %}
+<style>
+    .error-box {
+        background-color: #f8d7da;  /* rojo claro */
+        color: #842029;             /* texto rojo oscuro */
+        border: 1px solid #f5c2c7;
+        padding: 6px 10px;
+        border-radius: 4px;
+        margin-top: 4px;
+        font-size: 0.9rem;
+    }
+
+/* Compactar separación entre campos */
+.form-group {
+    margin-bottom: 0.1rem !important;  /* en lugar de mb-3 */
+}
+
+/* Reducir espacio entre label e input */
+.form-group label {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;  /* opcional: letra un poco más chica */
+    line-height: 1.2;   /* texto más compacto */
+}
+
+/* Ajustar tamaño de los inputs */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+}
+</style>
+
+
+<div class="form-container" style="max-width: 400px; margin: auto; padding: 5px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+    <h2 style="font-size: 1.5rem; text-align: center;">Alta de Cliente</h2>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="error-box">
+                        {{ field.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+            <div class="error-box">
+                {{ form.non_field_errors|striptags }}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn-submit"
+                style="width: 30%; padding: 10px; font-size: 1rem;
+                       color: #fff; background-color: #4CAF50;
+                       border: none; border-radius: 4px;">
+            Guardar
+        </button>
+    </form>
+</div>
+{% endblock %}
